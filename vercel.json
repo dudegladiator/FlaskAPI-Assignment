@@ -1,5 +1,14 @@
 {
-    "rewrites": [
-      { "source": "/(.*)", "destination": "/Assignment" }
+    "builds": [
+        {
+            "src": "Assignment.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "Assignment.py"
+        }
     ]
-  }
+}
