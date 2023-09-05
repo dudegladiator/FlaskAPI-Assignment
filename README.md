@@ -4,4 +4,4 @@
 
 Deployment(Vercel) - https://flask-api-assignment-hosting.vercel.app/
 
-Deployment (Amazon Lambda) - 
+Deployment (Amazon Lambda) - Pending
