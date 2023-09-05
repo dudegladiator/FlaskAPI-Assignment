@@ -4,26 +4,28 @@ import pandas as pd
 import requests
 
 app = Flask(__name__)
-# Replace 'your_url_here' with the URL of the JSON file containing comments
+
 url = 'https://app.ylytic.com/ylytic/test'
+
 
 try:
     response = requests.get(url)
 
-    # Check if the request was successful (status code 200)
+    # Checking if the request was successful (status code 200)
     if response.status_code == 200:
-        # Load the JSON data into a Python dictionary
+        # Loading the JSON data into a Python dictionary
         json_data = response.json()
         
-        # Extract the "comments" part of the JSON data
+        # Extracting the "comments" part of the JSON data
         comments_data = json_data.get("comments", [])
         
-        # Convert the "comments" data into a Pandas DataFrame
+        # Converting the "comments" data into a Pandas DataFrame
         df = pd.DataFrame(comments_data)
         df['at'] = pd.to_datetime(df['at'])
-        # Now you can work with the DataFrame as needed
+
         print('Loaded Successfully')
     else:
+        
         print(f"Failed to retrieve data. Status code: {response.status_code}")
 except Exception as e:
     print(f"An error occurred: {str(e)}")
@@ -36,6 +38,7 @@ def home():
 @app.route('/search')
 def search():
     # Extract query parameters from the URL
+    
     search_author = request.args.get('search_author')
     at_from = request.args.get('at_from')
     at_to = request.args.get('at_to')
@@ -45,11 +48,14 @@ def search():
     reply_to = request.args.get('reply_to')
     search_text = request.args.get('search_text')
 
-    # Build the query based on the parameters
-    query = df.copy()  # Create a copy of the DataFrame
+    if response.status_code != 200:
+        return jsonify({'error': 'Failed to retrieve data.'})
+    
+    
+    query = df.copy()  # Created a copy of the DataFrame
 
     
-
+    #Applying filters to the DataFrame
     if at_from:
         at_from_date = datetime.strptime(at_from, '%d-%m-%Y')
         at_from_date = at_from_date.strftime('%Y-%m-%d')
@@ -79,10 +85,10 @@ def search():
         #search_text = fr'\b{search_text}\b'
         query = query[query['text'].str.contains(search_text, case=False)]
 
-    # Serialize the results to JSON
+    # Serializing the results to JSON
     serialized_results = query.to_dict(orient='records')
 
-    # Return the JSON response
+
     return jsonify(serialized_results)
 
 
