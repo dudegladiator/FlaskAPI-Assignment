@@ -56,36 +56,51 @@ def search():
 
     
     #Applying filters to the DataFrame
-    if at_from:
-        at_from_date = datetime.strptime(at_from, '%d-%m-%Y')
-        at_from_date = at_from_date.strftime('%Y-%m-%d')
-        query = query[query['at'] >= at_from_date]
+    try:
+        if at_from:
+            at_from_date = datetime.strptime(at_from, '%d-%m-%Y')
+            at_from_date = at_from_date.strftime('%Y-%m-%d')
+            query = query[query['at'] >= at_from_date]
+    
+        if at_to:
+            at_to_date = datetime.strptime(at_to, '%d-%m-%Y')
+            at_to_date = at_to_date.strftime('%Y-%m-%d')
+            query = query[query['at'] <= at_to_date]
+    except:
+        return jsonify({'error': 'Invalid date format. Please use dd-mm-yyyy.'})
+    
+    try:
+        if like_from:
+            query = query[query['like'] >= int(like_from)]
+    
+        if like_to:
+            query = query[query['like'] <= int(like_to)]
+    except:
+        return jsonify({'error': 'Invalid like range. Please use integers.'})       
+    
 
-    if at_to:
-        at_to_date = datetime.strptime(at_to, '%d-%m-%Y')
-        at_to_date = at_to_date.strftime('%Y-%m-%d')
-        query = query[query['at'] <= at_to_date]
-
-    if like_from:
-        query = query[query['like'] >= int(like_from)]
-
-    if like_to:
-        query = query[query['like'] <= int(like_to)]
-
-    if reply_from:
-        query = query[query['reply'] >= int(reply_from)]
-
-    if reply_to:
-        query = query[query['reply'] <= int(reply_to)]
-        
+    try:
+        if reply_from:
+            query = query[query['reply'] >= int(reply_from)]
+    
+        if reply_to:
+            query = query[query['reply'] <= int(reply_to)]
+    except:
+        return jsonify({'error': 'Invalid reply range. Please use integers.'})        
+    
+    #These field can't have errors as they are string fields
     if search_author:
-        query = query[query['author'] == search_author]
+            query = query[query['author'] == search_author]
+           
         
+      
     if search_text:
-        #search_text = fr'\b{search_text}\b'
-        query = query[query['text'].str.contains(search_text, case=False)]
-
+            #search_text = fr'\b{search_text}\b'
+            query = query[query['text'].str.contains(search_text, case=False)]
+    
+    
     # Serializing the results to JSON
+    
     serialized_results = query.to_dict(orient='records')
 
 
